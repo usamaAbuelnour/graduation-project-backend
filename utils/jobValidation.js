@@ -33,10 +33,11 @@ const createJobValidationSchema = Yup.object()
                     schema
                         .min(1, "At least one service is required!")
                         .of(
-                            Yup.string().oneOf(
-                                ["Concrete1", "Concrete2", "Concrete3"],
-                                "Invalid service for this category!"
-                            )
+                            Yup.string().oneOf([
+                                "Concrete1",
+                                "Concrete2",
+                                "Concrete3",
+                            ])
                         )
                         .test(
                             "uniqueness",
@@ -51,14 +52,11 @@ const createJobValidationSchema = Yup.object()
                             schema
                                 .min(1, "At least one service is required!")
                                 .of(
-                                    Yup.string().oneOf(
-                                        [
-                                            "Consultation1",
-                                            "Consultation2",
-                                            "Consultation3",
-                                        ],
-                                        "Invalid service for this category!"
-                                    )
+                                    Yup.string().oneOf([
+                                        "Consultation1",
+                                        "Consultation2",
+                                        "Consultation3",
+                                    ])
                                 )
                                 .test(
                                     "uniqueness",
@@ -76,14 +74,11 @@ const createJobValidationSchema = Yup.object()
                                             "At least one service is required!"
                                         )
                                         .of(
-                                            Yup.string().oneOf(
-                                                [
-                                                    "Finishing1",
-                                                    "Finishing2",
-                                                    "Finishing3",
-                                                ],
-                                                "Invalid service for this category!"
-                                            )
+                                            Yup.string().oneOf([
+                                                "Finishing1",
+                                                "Finishing2",
+                                                "Finishing3",
+                                            ])
                                         )
                                         .test(
                                             "uniqueness",
