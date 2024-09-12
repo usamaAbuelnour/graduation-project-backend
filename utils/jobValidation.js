@@ -66,7 +66,7 @@ const createJobValidationSchema = Yup.object()
                                 ),
                         otherwise: (schema) =>
                             schema.when("category", {
-                                is: "Finishing Works",
+                                is: "Finishing Works",
                                 then: (schema) =>
                                     schema
                                         .min(
