@@ -1,7 +1,6 @@
 const { isValidObjectId } = require("mongoose");
 const CustomError = require("../utils/CustomError.js");
 const JobModel = require("../models/job.js");
-const logger = require("../logs/logger.js");
 const {
     createJobValidationSchema,
     updateJobValidationSchema,
@@ -11,7 +10,6 @@ const getJobs = async (_, res) => {
     const jobs = await JobModel.find({});
     if (jobs.length) res.status(200).send(jobs);
     else {
-        logger.info("There're no jobs yet!!");
         res.send("There're no jobs yet!!!!");
     }
 };
@@ -34,7 +32,6 @@ const setJob = async (req, res) => {
 
     const { id: userId } = req.user;
     const job = await JobModel.create({ userId, ...req.body });
-    logger.info("job created");
     res.status(201).send(job);
 };
 
@@ -68,7 +65,6 @@ const updateJob = async (req, res) => {
     });
     if (updatedJob) {
         res.send("Job updated");
-        logger.info("Job Updated");
     }
 };
 
@@ -87,10 +83,7 @@ const deleteJob = async (req, res) => {
             "You do not have right to remove this job!!!"
         );
     const deletedJob = await JobModel.findByIdAndDelete(jobId);
-    if (deletedJob) {
-        res.send("Job deleted");
-        logger.info("Job deleted");
-    }
+    if (deletedJob) res.send("Job deleted");
 };
 
 module.exports = {

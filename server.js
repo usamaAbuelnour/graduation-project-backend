@@ -29,7 +29,7 @@ app.use(express.urlencoded());
 connectDB();
 
 app.use(usersRouter);
-app.use("/jobs", jobsRouter);
+app.use("/jobs", auth, jobsRouter);
 app.use("/clients", clientRouter);
 
 app.use((_, res) => {
