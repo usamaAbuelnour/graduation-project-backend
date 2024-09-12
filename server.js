@@ -9,7 +9,7 @@ const errorHandler = require("./middlewares/errorHandler.js");
 
 const app = express();
 
-const port = process.env.PORT || 2000;
+const port = process.env.PORT || 5000;
 
 const connectDB = require("./config/db.js");
 const auth = require("./middlewares/auth.js");

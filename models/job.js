@@ -19,6 +19,14 @@ const jobSchema = new Schema(
             type: SchemaTypes.String,
             required: true,
         },
+        category: {
+            type: SchemaTypes.String,
+            required: true,
+        },
+        service: {
+            type: [SchemaTypes.String],
+            required: true,
+        },
     },
     { timestamps: true }
 );

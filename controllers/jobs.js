@@ -26,6 +26,7 @@ const setJob = async (req, res) => {
     const existingJob = await JobModel.findOne({
         title: req.body.title,
         location: req.body.location,
+        category: req.body.category
     });
 
     if (existingJob) return res.status(409).send("Job already exists ");
@@ -36,13 +37,13 @@ const setJob = async (req, res) => {
 };
 
 const updateJob = async (req, res) => {
-    try {
-        await updateJobValidationSchema.validate(req.body, {
-            stripUnknown: false,
-        });
-    } catch (error) {
-        throw new CustomError(422, error.message);
-    }
+    // try {
+    //     await updateJobValidationSchema.validate(req.body, {
+    //         stripUnknown: false,
+    //     });
+    // } catch (error) {
+    //     throw new CustomError(422, error.message);
+    // }
 
     const { id: jobId } = req.params;
     const { id: userId } = req.user;
