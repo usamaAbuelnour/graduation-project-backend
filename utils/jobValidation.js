@@ -23,7 +23,7 @@ const createJobValidationSchema = Yup.object()
             .oneOf([
                 "Concrete Construction",
                 "Consultation",
-                "Finishing Works",
+                "Finishing Works",
             ]),
         service: Yup.array()
             .of(Yup.string())
