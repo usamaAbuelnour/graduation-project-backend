@@ -7,7 +7,7 @@ const {
 } = require("../utils/jobValidation.js");
 
 const getJobs = async (_, res) => {
-    const jobs = await JobModel.find({}).populate({
+    const jobs = await JobModel.find({}).sort({ createdAt: -1 }).populate({
         path: "userId",
         select: "_id firstName lastName email",
     });
