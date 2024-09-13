@@ -7,7 +7,10 @@ const {
 } = require("../utils/jobValidation.js");
 
 const getJobs = async (_, res) => {
-    const jobs = await JobModel.find({});
+    const jobs = await JobModel.find({}).populate({
+        path: "userId",
+        select: "_id firstName lastName email",
+    });
     if (jobs.length) res.status(200).send(jobs);
     else {
         res.send("There're no jobs yet!!!!");
@@ -26,7 +29,7 @@ const setJob = async (req, res) => {
     const existingJob = await JobModel.findOne({
         title: req.body.title,
         location: req.body.location,
-        category: req.body.category
+        category: req.body.category,
     });
 
     if (existingJob) return res.status(409).send("Job already exists ");
