@@ -15,6 +15,7 @@ const registerValidationSchema = Yup.object().shape({
         .required("Password is a required field"),
     // .matches(/o+/, "Password should include o"),
     role: Yup.string().optional().oneOf(["admin", "user"]),
+    type: Yup.string().required().oneOf(["client", "engineer"]),
 });
 
 const loginValidationSchema = Yup.object().shape({

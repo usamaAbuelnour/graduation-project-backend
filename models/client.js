@@ -31,7 +31,12 @@ const clientSchema = new Schema({
     },
     phoneNumbers: {
         type: [SchemaTypes.String],
-        required: true
+        required: true,
+    },
+    idCard: {
+        type: SchemaTypes.ObjectId,
+        ref: "client-id-card",
+        required: true,
     },
 });
 

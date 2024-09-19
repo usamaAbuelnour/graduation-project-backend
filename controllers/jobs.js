@@ -1,19 +1,69 @@
 const { isValidObjectId } = require("mongoose");
-const CustomError = require("../utils/CustomError.js");
+const CustomError = require("../utils/customError.js");
 const JobModel = require("../models/job.js");
 const {
     createJobValidationSchema,
     updateJobValidationSchema,
 } = require("../utils/jobValidation.js");
 
-const getJobs = async (_, res) => {
-    const jobs = await JobModel.find({}).sort({ createdAt: -1 }).populate({
-        path: "userId",
-        select: "_id firstName lastName email",
-    });
+const getJobs = async (req, res) => {
+    console.log(req.query);
+    const jobs = await JobModel.find(req.query)
+        .sort({ createdAt: -1 })
+        .populate({
+            path: "userId",
+            select: "_id firstName lastName email",
+        });
     if (jobs.length) res.status(200).send(jobs);
     else {
-        res.send("There're no jobs yet!!!!");
+        res.send("There're no jobs for you!!!!");
+    }
+};
+
+const getPaginatedJobs = async (req, res) => {
+    const { page: requestedPage, ...filterCriteria } = req.query;
+    if (
+        (requestedPage !== undefined && isNaN(requestedPage)) ||
+        requestedPage === ""
+    )
+        throw new CustomError(400, "page number must be a number!!!");
+
+    const page = Number(requestedPage) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const jobsCount = await JobModel.find(filterCriteria).countDocuments();
+    const pagesCount = Math.ceil(jobsCount / limit);
+    if (requestedPage > pagesCount)
+        throw new CustomError(
+            400,
+            "The provided page number exceeds the total page count!!"
+        );
+
+    if (requestedPage <= 0)
+        throw new CustomError(
+            400,
+            "The provided page number can't be negative or equal zero!!"
+        );
+
+    const jobs = await JobModel.find(filterCriteria)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .populate({
+            path: "userId",
+            select: "_id firstName lastName email",
+        });
+    if (jobs.length)
+        res.send({
+            jobs,
+            pagesCount,
+            currentPage: page,
+            prev: page > 1,
+            next: page < pagesCount,
+        });
+    else {
+        res.send("There're no jobs for you!!");
     }
 };
 
@@ -92,6 +142,7 @@ const deleteJob = async (req, res) => {
 
 module.exports = {
     getJobs,
+    getPaginatedJobs,
     setJob,
     updateJob,
     deleteJob,

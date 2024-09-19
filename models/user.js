@@ -27,6 +27,10 @@ const userSchema = new Schema(
             type: SchemaTypes.ObjectId,
             ref: "client",
         },
+        engineerId: {
+            type: SchemaTypes.ObjectId,
+            ref: "client",
+        },
     },
     {
         timestamps: true,
@@ -43,6 +47,10 @@ userSchema.virtual("formattedCreatedAt").get(function () {
         minute: "2-digit",
         second: "2-digit",
     });
+});
+
+userSchema.virtual("fullName").get(function () {
+    return `${this.firstName} ${this.lastName}`;
 });
 
 userSchema.pre("save", async function () {

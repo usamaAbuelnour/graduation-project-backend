@@ -3,11 +3,11 @@ const UserModel = require("../models/user");
 
 const connectDB = async () => {
     try {
-        const connection = await mongoose.connect(process.env.MONGO_URI);
+        const {
+            connection: { host },
+        } = await mongoose.connect(process.env.MONGO_URI);
 
-        console.log(
-            `Mongo Connected: ${connection.connection.host}`.blue.underline
-        );
+        console.log(`Mongo Connected: ${host}`.blue.underline);
 
         const existingAdmin = await UserModel.findOne({ role: "admin" });
         if (!existingAdmin) {
