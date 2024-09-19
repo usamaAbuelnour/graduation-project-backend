@@ -5,7 +5,7 @@ const {
     registerValidationSchema,
     loginValidationSchema,
 } = require("../utils/userValidate.js");
-const CustomError = require("../utils/customError.js");
+const CustomError = require("../utils/customError");
 
 const register = async (req, res) => {
     try {
