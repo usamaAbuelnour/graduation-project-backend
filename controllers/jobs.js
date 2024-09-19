@@ -1,5 +1,5 @@
 const { isValidObjectId } = require("mongoose");
-const CustomError = require("../utils/customError");
+const CustomError = require("../utils/customError.js");
 const JobModel = require("../models/job.js");
 const {
     createJobValidationSchema,

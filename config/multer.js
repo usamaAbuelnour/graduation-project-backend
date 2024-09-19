@@ -1,6 +1,6 @@
 const multer = require("multer");
 const ImageKit = require("imagekit");
-const CustomError = require("../utils/customError");
+const CustomError = require("../utils/customError.js");
 
 const upload = multer({
     storage: multer.memoryStorage(),

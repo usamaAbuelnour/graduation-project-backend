@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const ClientModel = require("../models/client");
 const UserModel = require("../models/user");
 const clientValidationSchema = require("../utils/clientValidation");
-const CustomError = require("../utils/customError");
+const CustomError = require("../utils/customError.js");
 const { imagekit } = require("../config/multer");
 const ClientIdCardModel = require("../models/clientIdCard");
 
