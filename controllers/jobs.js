@@ -13,12 +13,18 @@ const getJobs = async (req, res) => {
         });
     if (jobs.length) res.status(200).send(jobs);
     else {
-        res.send("There're no jobs for you!!!!");
+        res.send("There're no jobs!!");
     }
 };
 
 const getPaginatedJobs = async (req, res) => {
+    
     const { page: requestedPage, ...filterCriteria } = req.query;
+    
+    const jobsCount = await JobModel.find(filterCriteria).countDocuments();
+  
+    if (!jobsCount) return res.send("There're no jobs!!");
+    
     if (
         (requestedPage !== undefined && isNaN(requestedPage)) ||
         requestedPage === ""
@@ -29,7 +35,6 @@ const getPaginatedJobs = async (req, res) => {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const jobsCount = await JobModel.find(filterCriteria).countDocuments();
     const pagesCount = Math.ceil(jobsCount / limit);
     if (requestedPage > pagesCount)
         throw new CustomError(
@@ -60,7 +65,7 @@ const getPaginatedJobs = async (req, res) => {
             next: page < pagesCount,
         });
     else {
-        res.send("There're no jobs for you!!");
+        res.send("There're no jobs!!");
     }
 };
 
