@@ -4,8 +4,9 @@ const JobModel = require("../models/job.js");
 const { createJobValidationSchema } = require("../validation/jobValidation.js");
 
 const getJobs = async (req, res) => {
-    console.log(req.query);
-    const jobs = await JobModel.find(req.query)
+    const { id: userId } = req.user;
+
+    const jobs = await JobModel.find({ ...req.query, userId })
         .sort({ createdAt: -1 })
         .populate({
             path: "userId",
@@ -18,13 +19,17 @@ const getJobs = async (req, res) => {
 };
 
 const getPaginatedJobs = async (req, res) => {
-    
+    const { id: userId } = req.user;
+
     const { page: requestedPage, ...filterCriteria } = req.query;
-    
-    const jobsCount = await JobModel.find(filterCriteria).countDocuments();
-  
+
+    const jobsCount = await JobModel.find({
+        ...filterCriteria,
+        userId,
+    }).countDocuments();
+
     if (!jobsCount) return res.send("There're no jobs!!");
-    
+
     if (
         (requestedPage !== undefined && isNaN(requestedPage)) ||
         requestedPage === ""
@@ -48,13 +53,13 @@ const getPaginatedJobs = async (req, res) => {
             "The provided page number can't be negative or equal zero!!"
         );
 
-    const jobs = await JobModel.find(filterCriteria)
+    const jobs = await JobModel.find({ ...filterCriteria, userId })
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
         .populate({
             path: "userId",
-            select: "_id firstName lastName email",
+            select: "_id firstName lastName email createdAt",
         });
     if (jobs.length)
         res.send({
