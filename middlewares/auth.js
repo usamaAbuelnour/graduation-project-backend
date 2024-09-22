@@ -1,6 +1,6 @@
 const { verify } = require("jsonwebtoken");
 const util = require("util");
-const CustomError = require("../utils/customError");
+const CustomError = require("../errors/CustomError");
 const jwtVerify = util.promisify(verify);
 
 const auth = async (req, _, next) => {

@@ -1,10 +1,10 @@
 const { isValidObjectId } = require("mongoose");
 const ClientModel = require("../models/client");
 const UserModel = require("../models/user");
-const clientValidationSchema = require("../utils/clientValidation");
-const CustomError = require("../utils/customError.js");
 const { imagekit } = require("../config/multer");
 const ClientIdCardModel = require("../models/clientIdCard");
+const clientValidationSchema = require("../validation/clientValidation.js");
+const CustomError = require("../errors/CustomError.js");
 
 const getClient = async (req, res) => {
     const { id: userId } = req.user;

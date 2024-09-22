@@ -1,11 +1,12 @@
 const bcrypt = require("bcrypt");
 const UserModel = require("../models/user.js");
 const generateToken = require("../utils/generateToken.js");
+
+const CustomError = require("../errors/CustomError.js");
 const {
     registerValidationSchema,
     loginValidationSchema,
-} = require("../utils/userValidate.js");
-const CustomError = require("../utils/customError.js");
+} = require("../validation/userValidate.js");
 
 const register = async (req, res) => {
     try {
@@ -35,6 +36,7 @@ const register = async (req, res) => {
             email: user.email,
             registeredAt: user.formattedCreatedAt,
             token: await generateToken(user._id),
+            [type === "client" ? "clientId" : "engineerId"]: null,
         });
     }
 };
@@ -48,7 +50,6 @@ const login = async (req, res) => {
 
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email });
-    console.log("clientId" in user._doc, user);
     if (user && (await bcrypt.compare(password, user.password))) {
         if (user.role === "admin")
             throw new CustomError(403, "Admins are not welcome here!!");

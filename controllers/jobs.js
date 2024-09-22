@@ -1,10 +1,7 @@
 const { isValidObjectId } = require("mongoose");
-const CustomError = require("../utils/customError.js");
+const CustomError = require("../errors/CustomError.js");
 const JobModel = require("../models/job.js");
-const {
-    createJobValidationSchema,
-    updateJobValidationSchema,
-} = require("../utils/jobValidation.js");
+const { createJobValidationSchema } = require("../validation/jobValidation.js");
 
 const getJobs = async (req, res) => {
     console.log(req.query);
