@@ -1,6 +1,6 @@
 const { Schema, SchemaTypes, model } = require("mongoose");
 
-const clientIdCardSchema = new Schema({
+const clientVerificationInfoSchema = new Schema({
     userId: {
         type: SchemaTypes.ObjectId,
         ref: "user",
@@ -14,6 +14,9 @@ const clientIdCardSchema = new Schema({
     },
 });
 
-const ClientIdCardModel = model("client-id-card", clientIdCardSchema);
+const ClientVerificationInfoModel = model(
+    "client-verification-info",
+    clientVerificationInfoSchema
+);
 
-module.exports = ClientIdCardModel;
+module.exports = ClientVerificationInfoModel;

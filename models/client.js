@@ -1,42 +1,26 @@
 const { Schema, SchemaTypes, model } = require("mongoose");
 
-const addressSchema = new Schema({
-    governorate: {
-        type: SchemaTypes.String,
-        required: true,
-    },
-    region: {
-        type: SchemaTypes.String,
-        required: true,
-    },
-    building: {
-        type: SchemaTypes.String,
-        required: true,
-    },
-    apartment: {
-        type: SchemaTypes.Number,
-        required: true,
-    },
-});
-
 const clientSchema = new Schema({
     userId: {
         type: SchemaTypes.ObjectId,
         ref: "user",
         required: true,
     },
-    address: {
-        type: addressSchema,
-        required: true,
+    personalImage: {
+        type: SchemaTypes.String,
+    },
+    governorate: {
+        type: SchemaTypes.String,
     },
     phoneNumbers: {
         type: [SchemaTypes.String],
-        required: true,
     },
-    idCard: {
+    whatsAppPhoneNumbers: {
+        type: [SchemaTypes.String],
+    },
+    verificationInfo: {
         type: SchemaTypes.ObjectId,
-        ref: "client-id-card",
-        required: true,
+        ref: "client-verification-info",
     },
 });
 

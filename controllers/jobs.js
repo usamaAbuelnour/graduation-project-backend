@@ -59,8 +59,34 @@ const getPaginatedJobs = async (req, res) => {
             jobs,
             pagesCount,
             currentPage: page,
-            prev: page > 1,
-            next: page < pagesCount,
+            locations: [
+                "portfouad",
+                "portsaid",
+                "suez",
+                "10th of ramadan",
+                "el shrok",
+                "el obour",
+                "new capital",
+                "badr",
+                "5th settlement",
+                "nasr city",
+            ],
+            categories: [
+                "Concrete Construction",
+                "Consultation",
+                "Finishing Works",
+            ],
+            services: [
+                "Concrete1",
+                "Concrete2",
+                "Concrete3",
+                "Consultation1",
+                "Consultation2",
+                "Consultation3",
+                "Finishing1",
+                "Finishing2",
+                "Finishing3",
+            ],
         });
     else {
         res.send("There're no jobs!!");

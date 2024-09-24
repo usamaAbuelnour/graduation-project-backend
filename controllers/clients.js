@@ -1,15 +1,12 @@
-const { isValidObjectId } = require("mongoose");
 const ClientModel = require("../models/client");
 const UserModel = require("../models/user");
 const { imagekit } = require("../config/multer");
-const ClientIdCardModel = require("../models/clientIdCard");
+const ClientIdCardModel = require("../models/clientVerificationInfo.js");
 const clientValidationSchema = require("../validation/clientValidation.js");
 const CustomError = require("../errors/CustomError.js");
 
 const getClient = async (req, res) => {
     const { id: userId } = req.user;
-    // if (!isValidObjectId(userId))
-    //     throw new CustomError(400, "Invalid client id");
 
     const user = await UserModel.findById(userId);
     if (!user) return res.send("No client found!!");
@@ -19,10 +16,10 @@ const getClient = async (req, res) => {
             _id: userId,
             clientId: { $exists: true },
         },
-        { firstName: 1, lastName: 1, email: 1, createdAt: 1 }
+        { firstName: true, lastName: true, email: true, createdAt: true }
     ).populate({
         path: "clientId",
-        select: "-__v -_id -userId -address._id",
+        select: "-__v -_id -userId",
     });
 
     if (client)
