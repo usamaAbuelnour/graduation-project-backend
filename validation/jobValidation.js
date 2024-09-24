@@ -34,9 +34,9 @@ const createJobValidationSchema = Yup.object()
                         .min(1, "At least one service is required!")
                         .of(
                             Yup.string().oneOf([
-                                "Concrete1",
-                                "Concrete2",
-                                "Concrete3",
+                                "Reinforced Concrete Pouring",
+                                "Concrete Leveling",
+                                "Concrete Structure Repairs",
                             ])
                         )
                         .test(
@@ -53,9 +53,9 @@ const createJobValidationSchema = Yup.object()
                                 .min(1, "At least one service is required!")
                                 .of(
                                     Yup.string().oneOf([
-                                        "Consultation1",
-                                        "Consultation2",
-                                        "Consultation3",
+                                        "Concrete Structure Design",
+                                        "Infrastructure Consultation",
+                                        "Construction Project Management",
                                     ])
                                 )
                                 .test(
@@ -75,9 +75,9 @@ const createJobValidationSchema = Yup.object()
                                         )
                                         .of(
                                             Yup.string().oneOf([
-                                                "Finishing1",
-                                                "Finishing2",
-                                                "Finishing3",
+                                                "Interior and Exterior Finishing Services",
+                                                "Plumbing Services",
+                                                "Masonry Services",
                                             ])
                                         )
                                         .test(

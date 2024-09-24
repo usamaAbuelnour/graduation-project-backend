@@ -31,6 +31,10 @@ const userSchema = new Schema(
             type: SchemaTypes.ObjectId,
             ref: "client",
         },
+        isVerified: {
+            type: SchemaTypes.Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,
