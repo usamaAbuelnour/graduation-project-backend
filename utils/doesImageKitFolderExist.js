@@ -1,6 +1,6 @@
 const { imagekit } = require("../config/multer");
 
-const doesFolderExist = async (folderPath) => {
+const doesImageKitFolderExist = async (folderPath) => {
     try {
         const response = await imagekit.listFiles({
             path: folderPath,
@@ -14,4 +14,4 @@ const doesFolderExist = async (folderPath) => {
     }
 };
 
-module.exports = doesFolderExist;
+module.exports = doesImageKitFolderExist;
