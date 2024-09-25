@@ -13,8 +13,11 @@ const clientValidationSchema = Yup.object()
             .min(1, "At least one phone number is required")
             .test(
                 "uniqueness",
-                "whatsapp phone numbers duplication isn't allowed!",
-                (value) => new Set(value).size === value.length
+                "phone numbers duplication isn't allowed!",
+                (value) => {
+                    if (!value || value.length === 0) return true;
+                    return new Set(value).size === value.length;
+                }
             ),
         whatsAppPhoneNumbers: Yup.array()
             .of(
@@ -27,7 +30,10 @@ const clientValidationSchema = Yup.object()
             .test(
                 "uniqueness",
                 "whatsapp phone numbers duplication isn't allowed!",
-                (value) => new Set(value).size === value.length
+                (value) => {
+                    if (!value || value.length === 0) return true;
+                    return new Set(value).size === value.length;
+                }
             ),
     })
     .noUnknown();

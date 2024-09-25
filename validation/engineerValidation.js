@@ -14,7 +14,10 @@ const engineerValidationSchema = Yup.object()
             .test(
                 "uniqueness",
                 "phone numbers duplication isn't allowed!",
-                (value) => new Set(value).size === value.length
+                (value) => {
+                    if (!value || value.length === 0) return true;
+                    return new Set(value).size === value.length;
+                }
             ),
         whatsAppPhoneNumbers: Yup.array()
             .of(
@@ -27,7 +30,10 @@ const engineerValidationSchema = Yup.object()
             .test(
                 "uniqueness",
                 "whatsapp phone numbers duplication isn't allowed!",
-                (value) => new Set(value).size === value.length
+                (value) => {
+                    if (!value || value.length === 0) return true;
+                    return new Set(value).size === value.length;
+                }
             ),
         profileOverview: Yup.string(),
         skills: Yup.array()
