@@ -2,7 +2,7 @@ const Yup = require("yup");
 
 const clientValidationSchema = Yup.object()
     .shape({
-        governorate: Yup.string().notRequired(),
+        governorate: Yup.string(),
         phoneNumbers: Yup.array()
             .of(
                 Yup.string().matches(
@@ -11,7 +11,11 @@ const clientValidationSchema = Yup.object()
                 )
             )
             .min(1, "At least one phone number is required")
-            .notRequired(),
+            .test(
+                "uniqueness",
+                "whatsapp phone numbers duplication isn't allowed!",
+                (value) => new Set(value).size === value.length
+            ),
         whatsAppPhoneNumbers: Yup.array()
             .of(
                 Yup.string().matches(
@@ -20,7 +24,11 @@ const clientValidationSchema = Yup.object()
                 )
             )
             .min(1, "At least one phone number is required")
-            .notRequired(),
+            .test(
+                "uniqueness",
+                "whatsapp phone numbers duplication isn't allowed!",
+                (value) => new Set(value).size === value.length
+            ),
     })
     .noUnknown();
 

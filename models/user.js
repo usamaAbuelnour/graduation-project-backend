@@ -29,7 +29,7 @@ const userSchema = new Schema(
         },
         engineerId: {
             type: SchemaTypes.ObjectId,
-            ref: "client",
+            ref: "engineer",
         },
         isVerified: {
             type: SchemaTypes.Boolean,

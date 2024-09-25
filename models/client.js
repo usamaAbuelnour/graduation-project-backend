@@ -8,19 +8,24 @@ const clientSchema = new Schema({
     },
     personalImage: {
         type: SchemaTypes.String,
+        default: null,
     },
     governorate: {
         type: SchemaTypes.String,
+        default: null,
     },
     phoneNumbers: {
         type: [SchemaTypes.String],
+        default: null,
     },
     whatsAppPhoneNumbers: {
         type: [SchemaTypes.String],
+        default: null,
     },
     verificationInfo: {
         type: SchemaTypes.ObjectId,
         ref: "client-verification-info",
+        default: null,
     },
 });
 

@@ -60,7 +60,7 @@ const createJobValidationSchema = Yup.object()
                                 )
                                 .test(
                                     "uniqueness",
-                                    "service duplication isn't allowed!",
+                                    "phone numbers duplication isn't allowed!",
                                     (value) =>
                                         new Set(value).size === value.length
                                 ),

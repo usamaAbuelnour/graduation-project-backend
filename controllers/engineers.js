@@ -1,39 +1,38 @@
-const ClientModel = require("../models/client");
+const EngineerModel = require("../models/engineer.js");
 const UserModel = require("../models/user");
 const { imagekit } = require("../config/multer");
-const clientValidationSchema = require("../validation/clientValidation.js");
+const engineerValidationSchema = require("../validation/engineerValidation.js");
 const CustomError = require("../errors/CustomError.js");
-const ClientVerificationInfoModel = require("../models/clientVerificationInfo.js");
+const EngineerVerificationInfoModel = require("../models/engineerVerificationInfo.js");
 const doesFolderExist = require("../utils/doesFolderExist.js");
 
-const getClient = async (req, res) => {
+const getEngineer = async (req, res) => {
     const { id: userId } = req.user;
 
     const user = await UserModel.findById(userId);
-    if (!user) return res.send("No client found!!");
+    if (!user) return res.send("No Engineer found!!");
 
-    const client = await UserModel.findOne(
+    const engineer = await UserModel.findOne(
         {
             _id: userId,
-            clientId: { $exists: true },
+            engineerId: { $exists: true },
         },
         { password: false, role: false }
     ).populate({
-        path: "clientId",
+        path: "engineerId",
         select: "-__v -_id -userId",
     });
-
-    if (client)
+    if (engineer)
         return res.send({
-            ...client._doc,
-            createdAt: client.formattedCreatedAt,
+            ...engineer._doc,
+            createdAt: engineer.formattedCreatedAt,
         });
-    res.send("No info found about this client!!");
+    res.send("No info found about this engineer!!");
 };
 
-const updateClient = async (req, res) => {
+const updateEngineer = async (req, res) => {
     try {
-        await clientValidationSchema.validate(req.body, {
+        await engineerValidationSchema.validate(req.body, {
             stripUnknown: false,
         });
     } catch (error) {
@@ -43,25 +42,24 @@ const updateClient = async (req, res) => {
     const existingUser = await UserModel.findOne(
         {
             _id: userId,
-            clientId: { $exists: true },
+            engineerId: { $exists: true },
         },
         { password: false, role: false }
     );
-
     if (!existingUser) return res.send("no such user exists!!");
 
-    if (!existingUser.clientId) {
-        const newClient = await ClientModel.create({
+    if (!existingUser.engineerId) {
+        const newEngineer = await EngineerModel.create({
             userId,
             ...req.body,
         });
-        existingUser.set({ clientId: newClient._id });
+        existingUser.set({ engineerId: newEngineer._id });
         await existingUser.save();
-    } else await ClientModel.findOneAndUpdate({ userId }, req.body);
+    } else await EngineerModel.findOneAndUpdate({ userId }, req.body);
 
     res.send(
         await existingUser.populate({
-            path: "clientId",
+            path: "engineerId",
             select: "-__v -_id -userId",
         })
     );
@@ -91,7 +89,7 @@ const setImage = async (req, res) => {
                 fileName: req.file.fieldname,
                 folder: personalImagesFolderPath,
             });
-            await ClientModel.findOneAndUpdate(
+            await EngineerModel.findOneAndUpdate(
                 { userId },
                 { personalImage: image.url }
             );
@@ -107,16 +105,17 @@ const setImage = async (req, res) => {
         folder: mainFolderPath,
     });
 
-    const existingVerificationInfo = await ClientVerificationInfoModel.findOne({
-        userId,
-    });
+    const existingVerificationInfo =
+        await EngineerVerificationInfoModel.findOne({
+            userId,
+        });
     if (existingVerificationInfo) {
         existingVerificationInfo.set({
             [req.file.fieldname]: image.url,
         });
         await existingVerificationInfo.save();
     } else
-        await ClientVerificationInfoModel.create({
+        await EngineerVerificationInfoModel.create({
             userId,
             [req.file.fieldname]: image.url,
         });
@@ -124,4 +123,4 @@ const setImage = async (req, res) => {
     res.send(image.url);
 };
 
-module.exports = { getClient, updateClient, setImage };
+module.exports = { getEngineer, updateEngineer, setImage };

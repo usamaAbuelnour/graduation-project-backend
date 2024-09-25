@@ -27,28 +27,36 @@ const engineerSchema = new Schema({
     },
     personalImage: {
         type: SchemaTypes.String,
+        default: null,
     },
     governorate: {
         type: SchemaTypes.String,
+        default: null,
     },
     phoneNumbers: {
         type: [SchemaTypes.String],
+        default: null,
     },
     whatsAppPhoneNumbers: {
         type: [SchemaTypes.String],
+        default: null,
     },
     profileOverview: {
         type: SchemaTypes.String,
+        default: null,
     },
     skills: {
         type: [SchemaTypes.String],
+        default: null,
     },
     workExperience: {
         type: [projectSchema],
+        default: null,
     },
     verificationInfo: {
         type: SchemaTypes.ObjectId,
         ref: "engineer-verification-info",
+        default: null,
     },
 });
 

@@ -14,7 +14,8 @@ const port = process.env.PORT || 5000;
 const connectDB = require("./config/db.js");
 const auth = require("./middlewares/auth.js");
 const jobsRouter = require("./routes/jobs.js");
-const clientRouter = require("./routes/clients.js");
+const clientsRouter = require("./routes/clients.js");
+const engineersRouter = require("./routes/engineers.js");
 
 const corsOptions = {
     origin: "*",
@@ -30,7 +31,8 @@ connectDB();
 
 app.use(usersRouter);
 app.use("/jobs", auth, jobsRouter);
-app.use("/clients", clientRouter);
+app.use("/clients", clientsRouter);
+app.use("/engineers", engineersRouter);
 
 app.use((_, res) => {
     res.status(404).send("page not found!!!");
