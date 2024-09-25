@@ -39,7 +39,15 @@ const engineerValidationSchema = Yup.object()
         skills: Yup.array()
             .of(Yup.string())
             .min(1, "At least one skills is required")
-            .max(6, "At most six skills are required"),
+            .max(6, "At most six skills are required")
+            .test(
+                "uniqueness",
+                "whatsapp phone numbers duplication isn't allowed!",
+                (value) => {
+                    if (!value || value.length === 0) return true;
+                    return new Set(value).size === value.length;
+                }
+            ),
         workExperience: Yup.object()
             .shape({
                 name: Yup.string(),
