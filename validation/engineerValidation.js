@@ -42,7 +42,7 @@ const engineerValidationSchema = Yup.object()
             .max(6, "At most six skills are required")
             .test(
                 "uniqueness",
-                "whatsapp phone numbers duplication isn't allowed!",
+                "skills duplication isn't allowed!",
                 (value) => {
                     if (!value || value.length === 0) return true;
                     return new Set(value).size === value.length;
