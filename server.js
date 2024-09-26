@@ -16,6 +16,7 @@ const auth = require("./middlewares/auth.js");
 const jobsRouter = require("./routes/jobs.js");
 const clientsRouter = require("./routes/clients.js");
 const engineersRouter = require("./routes/engineers.js");
+const proposalsRouter = require("./routes/proposals.js");
 
 const corsOptions = {
     origin: "*",
@@ -31,8 +32,9 @@ connectDB();
 
 app.use(usersRouter);
 app.use("/jobs", auth, jobsRouter);
-app.use("/clients", clientsRouter);
-app.use("/engineers", engineersRouter);
+app.use("/clients", auth, clientsRouter);
+app.use("/engineers", auth, engineersRouter);
+app.use("/proposals", auth, proposalsRouter);
 
 app.use((_, res) => {
     res.status(404).send("page not found!!!");

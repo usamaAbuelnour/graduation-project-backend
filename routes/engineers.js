@@ -1,5 +1,4 @@
 const express = require("express");
-const auth = require("../middlewares/auth");
 const { upload } = require("../config/multer");
 const {
     getEngineer,
@@ -8,10 +7,10 @@ const {
 } = require("../controllers/engineers");
 const router = express.Router();
 
-router.get("/", auth, getEngineer);
-router.patch("/", auth, updateEngineer);
-router.post("/personalImage", auth, upload.single("personalImage"), setImage);
-router.post("/frontId", auth, upload.single("frontId"), setImage);
-router.post("/backId", auth, upload.single("backId"), setImage);
+router.get("/", getEngineer);
+router.patch("/", updateEngineer);
+router.post("/personalImage", upload.single("personalImage"), setImage);
+router.post("/frontId", upload.single("frontId"), setImage);
+router.post("/backId", upload.single("backId"), setImage);
 
 module.exports = router;

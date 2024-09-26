@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const {
-    getJobs,
+    getMyJobs,
+    getAllJobs,
     setJob,
     updateJob,
     deleteJob,
-    getPaginatedJobs,
 } = require("../controllers/jobs");
 
-router.get("/", getJobs);
-router.get("/paginated", getPaginatedJobs);
+router.get("/", getMyJobs);
+router.get("/all", getAllJobs);
 router.post("/", setJob);
 router.patch("/:id", updateJob);
 router.delete("/:id", deleteJob);

@@ -1,4 +1,5 @@
 const { model, Schema, SchemaTypes } = require("mongoose");
+const { ref } = require("yup");
 
 const jobSchema = new Schema(
     {
@@ -26,6 +27,15 @@ const jobSchema = new Schema(
         service: {
             type: [SchemaTypes.String],
             required: true,
+        },
+        proposals: {
+            type: [
+                {
+                    type: SchemaTypes.ObjectId,
+                    ref: "proposal",
+                },
+            ],
+            default: [],
         },
     },
     { timestamps: true }

@@ -2,63 +2,69 @@ const { isValidObjectId } = require("mongoose");
 const CustomError = require("../errors/CustomError.js");
 const JobModel = require("../models/job.js");
 const { createJobValidationSchema } = require("../validation/jobValidation.js");
+const getPaginated = require("../utils/getPaginated.js");
 
-const getJobs = async (req, res) => {
-    const jobs = await JobModel.find(req.query)
-        .sort({ createdAt: -1 })
-        .populate({
-            path: "userId",
-            select: "_id firstName lastName email",
+const getMyJobs = async (req, res) => {
+    const { id: userId } = req.user;
+
+    const { page: requestedPage } = req.query;
+
+    const { docs, docsCount, pagesCount, currentPage } = await getPaginated(
+        JobModel,
+        "job",
+        10,
+        requestedPage,
+        { userId }
+    );
+
+    const populatedDocs = await JobModel.populate(docs, {
+        path: "userId",
+        select: "_id firstName lastName email",
+    });
+    if (docs.length)
+        res.send({
+            jobs: populatedDocs,
+            jobsCount: docsCount,
+            pagesCount,
+            currentPage,
         });
-    if (jobs.length) res.status(200).send(jobs);
     else {
         res.send("There're no jobs!!");
     }
 };
 
-const getPaginatedJobs = async (req, res) => {
+const getAllJobs = async (req, res) => {
     const { page: requestedPage, ...filterCriteria } = req.query;
 
-    const jobsCount = await JobModel.find(filterCriteria).countDocuments();
+    const { docs, docsCount, pagesCount, currentPage } = await getPaginated(
+        JobModel,
+        "job",
+        10,
+        requestedPage,
+        filterCriteria
+    );
 
-    if (!jobsCount) return res.send("There're no jobs!!");
-
-    if (
-        (requestedPage !== undefined && isNaN(requestedPage)) ||
-        requestedPage === ""
-    )
-        throw new CustomError(400, "page number must be a number!!!");
-
-    const page = Number(requestedPage) || 1;
-    const limit = 10;
-    const skip = (page - 1) * limit;
-
-    const pagesCount = Math.ceil(jobsCount / limit);
-    if (requestedPage > pagesCount)
-        throw new CustomError(
-            400,
-            "The provided page number exceeds the total page count!!"
-        );
-
-    if (requestedPage <= 0)
-        throw new CustomError(
-            400,
-            "The provided page number can't be negative or equal zero!!"
-        );
-
-    const jobs = await JobModel.find(filterCriteria)
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 })
-        .populate({
+    const populatedDocs = await JobModel.populate(docs, [
+        {
             path: "userId",
             select: "_id firstName lastName email createdAt",
-        });
-    if (jobs.length)
+        },
+        {
+            path: "proposals",
+            select: "-_id -__v -jobId",
+            populate: {
+                path: "userId",
+                select: "_id firstName lastName email",
+            },
+        },
+    ]);
+
+    if (docs.length)
         res.send({
-            jobs,
+            jobs: populatedDocs,
+            jobsCount: docsCount,
             pagesCount,
-            currentPage: page,
+            currentPage,
             locations: [
                 "portfouad",
                 "portsaid",
@@ -80,9 +86,11 @@ const getPaginatedJobs = async (req, res) => {
                 "Reinforced Concrete Pouring",
                 "Concrete Leveling",
                 "Concrete Structure Repairs",
+
                 "Concrete Structure Design",
                 "Infrastructure Consultation",
                 "Construction Project Management",
+
                 "Interior and Exterior Finishing Services",
                 "Plumbing Services",
                 "Masonry Services",
@@ -167,8 +175,8 @@ const deleteJob = async (req, res) => {
 };
 
 module.exports = {
-    getJobs,
-    getPaginatedJobs,
+    getMyJobs,
+    getAllJobs,
     setJob,
     updateJob,
     deleteJob,
