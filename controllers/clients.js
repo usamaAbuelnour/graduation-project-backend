@@ -62,7 +62,7 @@ const updateClient = async (req, res) => {
     res.send(
         await existingUser.populate({
             path: "clientId",
-            select: "-__v -_id -userId",
+            select: "-__v -_id -userId -verificationInfo",
         })
     );
 };
@@ -91,10 +91,23 @@ const setImage = async (req, res) => {
                 fileName: req.file.fieldname,
                 folder: personalImagesFolderPath,
             });
-            await ClientModel.findOneAndUpdate(
-                { userId },
-                { personalImage: image.url }
-            );
+            const existingUser = await UserModel.findOne({
+                _id: userId,
+                clientId: { $exists: true },
+            });
+            if (!existingUser.clientId) {
+                const newClient = await ClientModel.create({
+                    userId,
+                    personalImage: image.url,
+                });
+                existingUser.set({ clientId: newClient._id });
+                await existingUser.save();
+            } else {
+                await ClientModel.findOneAndUpdate(
+                    { userId },
+                    { personalImage: image.url }
+                );
+            }
             return res.send(image.url);
         } catch (error) {
             throw new CustomError(500, error.message);

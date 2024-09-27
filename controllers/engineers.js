@@ -60,7 +60,7 @@ const updateEngineer = async (req, res) => {
     res.send(
         await existingUser.populate({
             path: "engineerId",
-            select: "-__v -_id -userId",
+            select: "-__v -_id -userId -verificationInfo -workExperience._id",
         })
     );
 };
@@ -89,10 +89,23 @@ const setImage = async (req, res) => {
                 fileName: req.file.fieldname,
                 folder: personalImagesFolderPath,
             });
-            await EngineerModel.findOneAndUpdate(
-                { userId },
-                { personalImage: image.url }
-            );
+            const existingUser = await UserModel.findOne({
+                _id: userId,
+                engineerId: { $exists: true },
+            });
+            if (!existingUser.engineerId) {
+                const newEngineer = await EngineerModel.create({
+                    userId,
+                    personalImage: image.url,
+                });
+                existingUser.set({ engineerId: newEngineer._id });
+                await existingUser.save();
+            } else {
+                await EngineerModel.findOneAndUpdate(
+                    { userId },
+                    { personalImage: image.url }
+                );
+            }
             return res.send(image.url);
         } catch (error) {
             throw new CustomError(500, error.message);
