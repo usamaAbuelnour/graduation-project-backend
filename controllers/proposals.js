@@ -1,3 +1,4 @@
+const { isValidObjectId } = require("mongoose");
 const CustomError = require("../errors/CustomError");
 const JobModel = require("../models/job");
 const ProposalModel = require("../models/proposal");
@@ -25,7 +26,7 @@ const getProposals = async (req, res) => {
     if (docs.length)
         res.send({
             proposal: populatedDocs,
-            proposalCount: docsCount,
+            proposalsCount: docsCount,
             pagesCount,
             currentPage,
         });
@@ -60,8 +61,50 @@ const setProposal = async (req, res) => {
     jobToUpdate.set({ proposals: [...jobToUpdate.proposals, proposal._id] });
     await jobToUpdate.save();
 
-    console.log(jobToUpdate);
     res.status(201).send(proposal);
 };
 
-module.exports = { getProposals, setProposal };
+const acceptOrRejectProposal = async (req, res) => {
+    const { id: proposalId } = req.params;
+    const { status } = req.body;
+
+    if (!isValidObjectId(proposalId))
+        throw new CustomError(422, "Invalid proposal id!!");
+
+    if (!["accepted", "rejected"].includes(status))
+        throw new CustomError(
+            422,
+            "Stauts value should be either accepted or rejected!!"
+        );
+
+    const { id: userId } = req.user;
+    const existingProposal = await ProposalModel.findOne({
+        _id: proposalId,
+        userId,
+    });
+    if (!existingProposal) throw new CustomError(404, "No such proposal found");
+
+    existingProposal.set({ status });
+    await existingProposal.save();
+
+    const { jobId } = existingProposal;
+    // console.log(jobId);
+
+    const job = await JobModel.findById(jobId);
+    if (status === "accepted") {
+        job.set({ acceptedProposal: existingProposal._id });
+        const { proposals } = job;
+        proposals.forEach(async (proposal) => {
+            await ProposalModel.findOneAndUpdate(
+                { _id: proposal, status: "pending" },
+                { status: "rejected" }
+            );
+        });
+        await job.save();
+
+        // console.log(proposals, proposalId);
+    }
+    res.send(await job.populate("acceptedProposal"));
+};
+
+module.exports = { getProposals, setProposal, acceptOrRejectProposal };

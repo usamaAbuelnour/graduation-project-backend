@@ -1,5 +1,4 @@
 const { model, Schema, SchemaTypes } = require("mongoose");
-const { ref } = require("yup");
 
 const jobSchema = new Schema(
     {
@@ -36,6 +35,11 @@ const jobSchema = new Schema(
                 },
             ],
             default: [],
+        },
+        acceptedProposal: {
+            type: SchemaTypes.ObjectId,
+            ref: "proposal",
+            default: null,
         },
     },
     { timestamps: true }
