@@ -27,6 +27,10 @@ const clientSchema = new Schema({
         ref: "client-verification-info",
         default: null,
     },
+    jobsCount: {
+        type: SchemaTypes.Number,
+        default: 0
+    }
 });
 
 const ClientModel = model("client", clientSchema);

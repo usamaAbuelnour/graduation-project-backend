@@ -4,6 +4,7 @@ const JobModel = require("../models/job");
 const ProposalModel = require("../models/proposal");
 const getPaginated = require("../utils/getPaginated");
 const proposalValidationSchema = require("../validation/proposalValidation");
+const ClientModel = require("../models/client");
 
 const getProposals = async (req, res) => {
     const { id: userId } = req.user;
@@ -18,14 +19,16 @@ const getProposals = async (req, res) => {
         { userId }
     );
 
-    const populatedDocs = await ProposalModel.populate(docs, [ {
-        path: "jobId",
-        select: "-_id -__v -proposals",
-        populate:{
-            path: "userId",
-            select: "firstName lastName email isVerified",
-        }
-    }]);
+    const populatedDocs = await ProposalModel.populate(docs, [
+        {
+            path: "jobId",
+            select: "-_id -__v -proposals",
+            populate: {
+                path: "userId",
+                select: "firstName lastName email isVerified",
+            },
+        },
+    ]);
 
     if (docs.length)
         res.send({
@@ -81,20 +84,20 @@ const acceptOrRejectProposal = async (req, res) => {
             "Stauts value should be either accepted or rejected!!"
         );
 
-    const { id: userId } = req.user;
-    const existingProposal = await ProposalModel.findOne({
-        _id: proposalId,
-        userId,
-    });
+    const existingProposal = await ProposalModel.findById(proposalId);
+   
     if (!existingProposal) throw new CustomError(404, "No such proposal found");
-
+    
+    if (existingProposal.status !== "pending")
+        throw new CustomError(409, "This proposal is no longer pending!!");
+   
     existingProposal.set({ status });
     await existingProposal.save();
 
+    const { id: userId } = req.user;
     const { jobId } = existingProposal;
-    // console.log(jobId);
-
     const job = await JobModel.findById(jobId);
+
     if (status === "accepted") {
         job.set({ acceptedProposal: existingProposal._id });
         const { proposals } = job;
@@ -105,8 +108,13 @@ const acceptOrRejectProposal = async (req, res) => {
             );
         });
         await job.save();
-
-        // console.log(proposals, proposalId);
+        const existingClient = await ClientModel.findOne({ userId });
+        if (!existingClient) {
+            await ClientModel.create({ userId, jobsCount: 1 });
+        } else {
+            existingClient.set({ jobsCount: existingClient.jobsCount + 1 });
+            await existingClient.save();
+        }
     }
     res.send(await job.populate("acceptedProposal"));
 };

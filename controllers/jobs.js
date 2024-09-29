@@ -56,7 +56,11 @@ const getAllJobs = async (req, res) => {
 
     const populatedDocs = await JobModel.populate(docs, {
         path: "userId",
-        select: "_id firstName lastName email createdAt",
+        select: "_id firstName lastName email createdAt clientId",
+        populate: {
+            path: "clientId",
+            select: "jobsCount -_id"
+        }
     });
 
     if (docs.length)
