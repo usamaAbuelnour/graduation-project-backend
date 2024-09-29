@@ -5,6 +5,7 @@ const ProposalModel = require("../models/proposal");
 const getPaginated = require("../utils/getPaginated");
 const proposalValidationSchema = require("../validation/proposalValidation");
 const ClientModel = require("../models/client");
+const UserModel = require("../models/user");
 
 const getProposals = async (req, res) => {
     const { id: userId } = req.user;
@@ -85,12 +86,12 @@ const acceptOrRejectProposal = async (req, res) => {
         );
 
     const existingProposal = await ProposalModel.findById(proposalId);
-   
+
     if (!existingProposal) throw new CustomError(404, "No such proposal found");
-    
+
     if (existingProposal.status !== "pending")
         throw new CustomError(409, "This proposal is no longer pending!!");
-   
+
     existingProposal.set({ status });
     await existingProposal.save();
 
@@ -108,10 +109,22 @@ const acceptOrRejectProposal = async (req, res) => {
             );
         });
         await job.save();
-        const existingClient = await ClientModel.findOne({ userId });
-        if (!existingClient) {
-            await ClientModel.create({ userId, jobsCount: 1 });
+
+        const existingUser = await UserModel.findOne({
+            _id: userId,
+            clientId: { $exists: true },
+        });
+
+        if (!existingUser.clientId) {
+            const newClient = await ClientModel.create({
+                userId,
+                jobsCount: 1,
+            });
+
+            existingUser.set({ clientId: newClient._id });
+            await existingUser.save();
         } else {
+            const existingClient = await ClientModel.findOne({ userId });
             existingClient.set({ jobsCount: existingClient.jobsCount + 1 });
             await existingClient.save();
         }
