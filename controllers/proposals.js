@@ -18,10 +18,14 @@ const getProposals = async (req, res) => {
         { userId }
     );
 
-    const populatedDocs = await ProposalModel.populate(docs, {
-        path: "userId",
-        select: "_id firstName lastName email",
-    });
+    const populatedDocs = await ProposalModel.populate(docs, [ {
+        path: "jobId",
+        select: "-_id -__v -proposals",
+        populate:{
+            path: "userId",
+            select: "firstName lastName email isVerified",
+        }
+    }]);
 
     if (docs.length)
         res.send({

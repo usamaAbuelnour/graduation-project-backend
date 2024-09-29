@@ -8,5 +8,7 @@ router.patch("/", updateClient);
 router.post("/personalImage", upload.single("personalImage"), setImage);
 router.post("/frontId", upload.single("frontId"), setImage);
 router.post("/backId", upload.single("backId"), setImage);
+router.get('/verificationInfo',)
+router.post('/verificationInfo',)
 
 module.exports = router;

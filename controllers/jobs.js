@@ -17,10 +17,20 @@ const getMyJobs = async (req, res) => {
         { userId }
     );
 
-    const populatedDocs = await JobModel.populate(docs, {
-        path: "userId",
-        select: "_id firstName lastName email",
-    });
+    const populatedDocs = await JobModel.populate(docs, [
+        {
+            path: "userId",
+            select: "_id firstName lastName email",
+        },
+        {
+            path: "proposals",
+            select: "-_id -__v -jobId",
+            populate: {
+                path: "userId",
+                select: "_id firstName lastName email",
+            },
+        },
+    ]);
     if (docs.length)
         res.send({
             jobs: populatedDocs,
@@ -44,20 +54,10 @@ const getAllJobs = async (req, res) => {
         filterCriteria
     );
 
-    const populatedDocs = await JobModel.populate(docs, [
-        {
-            path: "userId",
-            select: "_id firstName lastName email createdAt",
-        },
-        {
-            path: "proposals",
-            select: "-_id -__v -jobId",
-            populate: {
-                path: "userId",
-                select: "_id firstName lastName email",
-            },
-        },
-    ]);
+    const populatedDocs = await JobModel.populate(docs, {
+        path: "userId",
+        select: "_id firstName lastName email createdAt",
+    });
 
     if (docs.length)
         res.send({

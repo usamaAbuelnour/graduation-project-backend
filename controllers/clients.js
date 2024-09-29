@@ -67,6 +67,13 @@ const updateClient = async (req, res) => {
     );
 };
 
+const getVerificationInfo = async (req, res) => {
+    
+}
+const setVerificationInfo = async (req, res) => {
+    
+}
+
 const setImage = async (req, res) => {
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
