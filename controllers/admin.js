@@ -18,6 +18,7 @@ const login = async (req, res) => {
             throw new CustomError(403, "Normal users are not welcome here!!");
         res.send({
             id: admin._id,
+            name: admin.firstName,
             email: admin.email,
             token: await generateToken(admin._id),
         });
