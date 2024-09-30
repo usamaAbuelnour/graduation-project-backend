@@ -1,8 +1,8 @@
 const { compare } = require("bcrypt");
-const CustomError = require("../errors/CustomError");
+const generateToken = require("../utils/generateToken");
 const UserModel = require("../models/user");
 const { loginValidationSchema } = require("../validation/userValidate");
-const generateToken = require("../utils/generateToken");
+const CustomError = require("../errors/CustomError");
 
 const login = async (req, res) => {
     try {

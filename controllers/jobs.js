@@ -24,10 +24,10 @@ const getMyJobs = async (req, res) => {
         },
         {
             path: "proposals",
-            select: "-_id -__v -jobId",
+            select: "-__v -jobId",
             populate: {
                 path: "userId",
-                select: "_id firstName lastName email",
+                select: "-_id firstName lastName email",
             },
         },
     ]);
