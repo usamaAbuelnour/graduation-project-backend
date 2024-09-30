@@ -8,9 +8,11 @@ const clientVerificationInfoSchema = new Schema({
     },
     frontId: {
         type: SchemaTypes.String,
+        default: null,
     },
     backId: {
         type: SchemaTypes.String,
+        default: null,
     },
 });
 

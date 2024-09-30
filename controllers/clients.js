@@ -21,6 +21,10 @@ const getClient = async (req, res) => {
     ).populate({
         path: "clientId",
         select: "-__v -_id -userId",
+        populate: {
+            path: "verificationInfo",
+            select: "-__v -_id -userId",
+        },
     });
 
     if (client)
@@ -67,8 +71,21 @@ const updateClient = async (req, res) => {
     );
 };
 
-const getVerificationInfo = async (req, res) => {};
-const setVerificationInfo = async (req, res) => {};
+const setVerificationInfo = async (req, res) => {
+    const { id: userId } = req.user;
+    const existingVerificationInfo = await ClientVerificationInfoModel.findOne({
+        userId,
+    });
+    if (!existingVerificationInfo)
+        throw new CustomError(400, "There's no info to validate!!!");
+    for (const key in existingVerificationInfo._doc) {
+        if (existingVerificationInfo[key] === null)
+            throw new CustomError(400, `Missing ${key}!!!`);
+    }
+    res.send(
+        "Info sent successfully, please wait for verification confirmation ^_^"
+    );
+};
 
 const setImage = async (req, res) => {
     if (!req.file) {
@@ -111,7 +128,6 @@ const setImage = async (req, res) => {
         }
         return res.send(image.url);
     }
-
     if (!existingUser.clientId) {
         const newVerificationInfo = await ClientVerificationInfoModel.create({
             userId,
@@ -149,4 +165,4 @@ const setImage = async (req, res) => {
     res.send(image.url);
 };
 
-module.exports = { getClient, updateClient, setImage };
+module.exports = { getClient, updateClient, setImage, setVerificationInfo };

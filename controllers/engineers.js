@@ -21,6 +21,10 @@ const getEngineer = async (req, res) => {
     ).populate({
         path: "engineerId",
         select: "-__v -_id -userId",
+        populate: {
+            path: "verificationInfo",
+            select: "-__v -_id -userId",
+        },
     });
     if (engineer)
         return res.send({
@@ -65,6 +69,23 @@ const updateEngineer = async (req, res) => {
     );
 };
 
+const setVerificationInfo = async (req, res) => {
+    const { id: userId } = req.user;
+    const existingVerificationInfo =
+        await EngineerVerificationInfoModel.findOne({
+            userId,
+        });
+    if (!existingVerificationInfo)
+        throw new CustomError(400, "There's no info to validate!!!");
+    for (const key in existingVerificationInfo._doc) {
+        if (existingVerificationInfo[key] === null)
+            throw new CustomError(400, `Missing ${key}!!!`);
+    }
+    res.send(
+        "Info sent successfully, please wait for verification confirmation ^_^"
+    );
+};
+
 const setImage = async (req, res) => {
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
@@ -76,64 +97,72 @@ const setImage = async (req, res) => {
         ("clientId" in user._doc ? "Client-" : "Engineer-") +
         user.email.replace(/[. @]/g, (char) => (char === "@" ? "_" : "-"));
 
-    let image;
+    const imageId = await doesImageExist(req.file.fieldname, mainFolderPath);
+    if (imageId) await imagekit.deleteFile(imageId);
 
-    if (req.file.fieldname === "personalImage") {
-        const personalImagesFolderPath = `${mainFolderPath}/personal-image`;
-        try {
-            // if (await doesImageKitFolderExist(personalImagesFolderPath))
-            //     await imagekit.deleteFolder(personalImagesFolderPath);
-
-            image = await imagekit.upload({
-                file: req.file.buffer,
-                fileName: req.file.fieldname,
-                folder: personalImagesFolderPath,
-            });
-            const existingUser = await UserModel.findOne({
-                _id: userId,
-                engineerId: { $exists: true },
-            });
-            if (!existingUser.engineerId) {
-                const newEngineer = await EngineerModel.create({
-                    userId,
-                    personalImage: image.url,
-                });
-                existingUser.set({ engineerId: newEngineer._id });
-                await existingUser.save();
-            } else {
-                await EngineerModel.findOneAndUpdate(
-                    { userId },
-                    { personalImage: image.url }
-                );
-            }
-            return res.send(image.url);
-        } catch (error) {
-            throw new CustomError(500, error.message);
-        }
-    }
-
-    image = await imagekit.upload({
+    const image = await imagekit.upload({
         file: req.file.buffer,
         fileName: req.file.fieldname,
         folder: mainFolderPath,
     });
 
-    const existingVerificationInfo =
-        await EngineerVerificationInfoModel.findOne({
+    const existingUser = await UserModel.findOne({
+        _id: userId,
+        engineerId: { $exists: true },
+    });
+
+    if (req.file.fieldname === "personalImage") {
+        if (!existingUser.engineerId) {
+            const newEngineer = await EngineerModel.create({
+                userId,
+                personalImage: image.url,
+            });
+            existingUser.set({ engineerId: newEngineer._id });
+            await existingUser.save();
+        } else {
+            await EngineerModel.findOneAndUpdate(
+                { userId },
+                { personalImage: image.url }
+            );
+        }
+        return res.send(image.url);
+    }
+    if (!existingUser.engineerId) {
+        const newVerificationInfo = await EngineerVerificationInfoModel.create({
             userId,
-        });
-    if (existingVerificationInfo) {
-        existingVerificationInfo.set({
             [req.file.fieldname]: image.url,
         });
-        await existingVerificationInfo.save();
-    } else
-        await EngineerVerificationInfoModel.create({
+        const newEngineer = await EngineerModel.create({
             userId,
-            [req.file.fieldname]: image.url,
+            verificationInfo: newVerificationInfo._id,
         });
+        existingUser.set({ engineerId: newEngineer._id });
+        await existingUser.save();
+    } else {
+        const existingVerificationInfo =
+            await EngineerVerificationInfoModel.findOne({
+                userId,
+            });
+
+        if (existingVerificationInfo) {
+            existingVerificationInfo.set({
+                [req.file.fieldname]: image.url,
+            });
+            await existingVerificationInfo.save();
+        } else {
+            const newVerificationInfo =
+                await EngineerVerificationInfoModel.create({
+                    userId,
+                    [req.file.fieldname]: image.url,
+                });
+            await EngineerModel.findOneAndUpdate(
+                { userId },
+                { verificationInfo: newVerificationInfo._id }
+            );
+        }
+    }
 
     res.send(image.url);
 };
 
-module.exports = { getEngineer, updateEngineer, setImage };
+module.exports = { getEngineer, updateEngineer, setImage, setVerificationInfo };

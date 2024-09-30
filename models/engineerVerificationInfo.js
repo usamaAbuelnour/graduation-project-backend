@@ -8,15 +8,23 @@ const engineerVerificationInfoSchema = new Schema({
     },
     frontId: {
         type: SchemaTypes.String,
+        default: null,
     },
     backId: {
         type: SchemaTypes.String,
+        default: null,
     },
     unionCard: {
         type: SchemaTypes.String,
+        default: null,
     },
-    graduationCertificate: {
+    militaryCert: {
         type: SchemaTypes.String,
+        default: null,
+    },
+    graduationCert: {
+        type: SchemaTypes.String,
+        default: null,
     },
 });
 

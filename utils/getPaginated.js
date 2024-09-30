@@ -25,7 +25,7 @@ const getPaginated = async (
     if (requestedPage > pagesCount)
         throw new CustomError(
             400,
-            "The provided page number exceeds the total page count!!"
+            "The provided page number exceeds the total pages count!!"
         );
 
     if (requestedPage <= 0)
