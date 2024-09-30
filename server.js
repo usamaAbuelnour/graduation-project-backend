@@ -17,6 +17,8 @@ const jobsRouter = require("./routes/jobs.js");
 const clientsRouter = require("./routes/clients.js");
 const engineersRouter = require("./routes/engineers.js");
 const proposalsRouter = require("./routes/proposals.js");
+const adminRouter = require("./routes/admin.js");
+const checkRole = require("./middlewares/checkRole.js");
 
 const corsOptions = {
     origin: "*",
@@ -30,11 +32,12 @@ app.use(express.urlencoded());
 
 connectDB();
 
+app.use("/admin", adminRouter);
 app.use(usersRouter);
-app.use("/jobs", auth, jobsRouter);
-app.use("/clients", auth, clientsRouter);
-app.use("/engineers", auth, engineersRouter);
-app.use("/proposals", auth, proposalsRouter);
+app.use("/clients", auth, checkRole(["user"]), clientsRouter);
+app.use("/engineers", auth, checkRole(["user"]), engineersRouter);
+app.use("/jobs", auth, checkRole(["user"]), jobsRouter);
+app.use("/proposals", auth, checkRole(["user"]), proposalsRouter);
 
 app.use((_, res) => {
     res.status(404).send("page not found!!!");

@@ -4,7 +4,7 @@ const { imagekit } = require("../config/multer");
 const clientValidationSchema = require("../validation/clientValidation.js");
 const CustomError = require("../errors/CustomError.js");
 const ClientVerificationInfoModel = require("../models/clientVerificationInfo.js");
-const doesImageKitFolderExist = require("../utils/doesImageKitFolderExist.js");
+const doesImageExist = require("../utils/doesImageExist.js");
 
 const getClient = async (req, res) => {
     const { id: userId } = req.user;
@@ -67,12 +67,8 @@ const updateClient = async (req, res) => {
     );
 };
 
-const getVerificationInfo = async (req, res) => {
-    
-}
-const setVerificationInfo = async (req, res) => {
-    
-}
+const getVerificationInfo = async (req, res) => {};
+const setVerificationInfo = async (req, res) => {};
 
 const setImage = async (req, res) => {
     if (!req.file) {
@@ -85,61 +81,70 @@ const setImage = async (req, res) => {
         ("clientId" in user._doc ? "Client-" : "Engineer-") +
         user.email.replace(/[. @]/g, (char) => (char === "@" ? "_" : "-"));
 
-    let image;
+    const imageId = await doesImageExist(req.file.fieldname, mainFolderPath);
+    if (imageId) await imagekit.deleteFile(imageId);
 
-    if (req.file.fieldname === "personalImage") {
-        const personalImagesFolderPath = `${mainFolderPath}/personal-image`;
-        try {
-            if (await doesImageKitFolderExist(personalImagesFolderPath))
-                await imagekit.deleteFolder(personalImagesFolderPath);
-
-            image = await imagekit.upload({
-                file: req.file.buffer,
-                fileName: req.file.fieldname,
-                folder: personalImagesFolderPath,
-            });
-            const existingUser = await UserModel.findOne({
-                _id: userId,
-                clientId: { $exists: true },
-            });
-            if (!existingUser.clientId) {
-                const newClient = await ClientModel.create({
-                    userId,
-                    personalImage: image.url,
-                });
-                existingUser.set({ clientId: newClient._id });
-                await existingUser.save();
-            } else {
-                await ClientModel.findOneAndUpdate(
-                    { userId },
-                    { personalImage: image.url }
-                );
-            }
-            return res.send(image.url);
-        } catch (error) {
-            throw new CustomError(500, error.message);
-        }
-    }
-
-    image = await imagekit.upload({
+    const image = await imagekit.upload({
         file: req.file.buffer,
         fileName: req.file.fieldname,
         folder: mainFolderPath,
     });
 
-    const existingVerificationInfo = await ClientVerificationInfoModel.findOne({
-        userId,
+    const existingUser = await UserModel.findOne({
+        _id: userId,
+        clientId: { $exists: true },
     });
-    if (existingVerificationInfo) {
-        existingVerificationInfo.set({
-            [req.file.fieldname]: image.url,
-        });
-        await existingVerificationInfo.save();
-    } else
-        await ClientVerificationInfoModel.create({
+
+    if (req.file.fieldname === "personalImage") {
+        if (!existingUser.clientId) {
+            const newClient = await ClientModel.create({
+                userId,
+                personalImage: image.url,
+            });
+            existingUser.set({ clientId: newClient._id });
+            await existingUser.save();
+        } else {
+            await ClientModel.findOneAndUpdate(
+                { userId },
+                { personalImage: image.url }
+            );
+        }
+        return res.send(image.url);
+    }
+
+    if (!existingUser.clientId) {
+        const newVerificationInfo = await ClientVerificationInfoModel.create({
             userId,
             [req.file.fieldname]: image.url,
         });
+        const newClient = await ClientModel.create({
+            userId,
+            verificationInfo: newVerificationInfo._id,
+        });
+        existingUser.set({ clientId: newClient._id });
+        await existingUser.save();
+    } else {
+        const existingVerificationInfo =
+            await ClientVerificationInfoModel.findOne({
+                userId,
+            });
+        if (existingVerificationInfo) {
+            existingVerificationInfo.set({
+                [req.file.fieldname]: image.url,
+            });
+            await existingVerificationInfo.save();
+        } else {
+            const newVerificationInfo =
+                await ClientVerificationInfoModel.create({
+                    userId,
+                    [req.file.fieldname]: image.url,
+                });
+            await ClientModel.findOneAndUpdate(
+                { userId },
+                { verificationInfo: newVerificationInfo._id }
+            );
+        }
+    }
 
     res.send(image.url);
 };

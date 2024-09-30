@@ -4,7 +4,7 @@ const { imagekit } = require("../config/multer");
 const engineerValidationSchema = require("../validation/engineerValidation.js");
 const CustomError = require("../errors/CustomError.js");
 const EngineerVerificationInfoModel = require("../models/engineerVerificationInfo.js");
-const doesImageKitFolderExist = require("../utils/doesImageKitFolderExist.js");
+const doesImageExist = require("../utils/doesImageExist.js");
 
 const getEngineer = async (req, res) => {
     const { id: userId } = req.user;
@@ -81,8 +81,8 @@ const setImage = async (req, res) => {
     if (req.file.fieldname === "personalImage") {
         const personalImagesFolderPath = `${mainFolderPath}/personal-image`;
         try {
-            if (await doesImageKitFolderExist(personalImagesFolderPath))
-                await imagekit.deleteFolder(personalImagesFolderPath);
+            // if (await doesImageKitFolderExist(personalImagesFolderPath))
+            //     await imagekit.deleteFolder(personalImagesFolderPath);
 
             image = await imagekit.upload({
                 file: req.file.buffer,
