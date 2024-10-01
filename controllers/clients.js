@@ -82,9 +82,23 @@ const setVerificationInfo = async (req, res) => {
         if (existingVerificationInfo[key] === null)
             throw new CustomError(400, `Missing ${key}!!!`);
     }
-    res.send(
-        "Info sent successfully, please wait for verification confirmation ^_^"
-    );
+
+    const existingUser = await UserModel.findById(userId);
+    if (
+        !existingUser.verificationStatus ||
+        existingUser.verificationStatus === "rejected"
+    ) {
+        existingUser.set({ verificationStatus: "pending" });
+        await existingUser.save();
+        return res.send(
+            "Info sent successfully, please wait for verification confirmation ^_^"
+        );
+    }
+    if (existingUser.verificationStatus === "pending")
+        return res.send("Please wait for verification confirmation ^_^");
+
+    if (existingUser.verificationStatus === "accepted")
+        return res.send("You're already verified!!");
 };
 
 const setImage = async (req, res) => {

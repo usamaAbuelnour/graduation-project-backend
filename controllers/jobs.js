@@ -51,7 +51,7 @@ const getAllJobs = async (req, res) => {
         "job",
         10,
         requestedPage,
-        filterCriteria
+        { ...filterCriteria, acceptedProposal: null }
     );
 
     const populatedDocs = await JobModel.populate(docs, {
@@ -59,8 +59,8 @@ const getAllJobs = async (req, res) => {
         select: "_id firstName lastName email createdAt clientId",
         populate: {
             path: "clientId",
-            select: "jobsCount -_id"
-        }
+            select: "jobsCount -_id",
+        },
     });
 
     if (docs.length)

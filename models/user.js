@@ -31,9 +31,9 @@ const userSchema = new Schema(
             type: SchemaTypes.ObjectId,
             ref: "engineer",
         },
-        isVerified: {
-            type: SchemaTypes.Boolean,
-            default: false,
+        verificationStatus: {
+            type: SchemaTypes.String,
+            default: null,
         },
     },
     {

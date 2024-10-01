@@ -37,7 +37,7 @@ const register = async (req, res) => {
             registeredAt: user.formattedCreatedAt,
             token: await generateToken(user._id),
             [type === "client" ? "clientId" : "engineerId"]: null,
-            isVerified: user.isVerified,
+            verificationStatus: user.verificationStatus,
         });
     }
 };
@@ -63,7 +63,7 @@ const login = async (req, res) => {
             token: await generateToken(user._id),
             ["clientId" in user._doc ? "clientId" : "engineerId"]:
                 "clientId" in user._doc ? user.clientId : user.engineerId,
-            isVerified: user.isVerified,
+            verificationStatus: user.verificationStatus,
         });
     } else throw new CustomError(401, "email or password is incorrect");
 };

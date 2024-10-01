@@ -63,8 +63,3 @@ const engineerSchema = new Schema({
 const EngineerModel = model("engineer", engineerSchema);
 
 module.exports = EngineerModel;
-
-// personalImage: multipart/fromdata
-// profileOverview: string,
-// skils: array[string] max 6,
-// work experience: array[{projectName: string, projectDescription: string, date: from to }]

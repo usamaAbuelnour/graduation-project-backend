@@ -26,7 +26,7 @@ const getProposals = async (req, res) => {
             select: "-_id -__v -proposals",
             populate: {
                 path: "userId",
-                select: "firstName lastName email isVerified",
+                select: "firstName lastName email",
             },
         },
     ]);
