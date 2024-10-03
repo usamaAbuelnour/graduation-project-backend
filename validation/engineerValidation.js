@@ -69,21 +69,3 @@ const engineerValidationSchema = Yup.object()
 
 module.exports = engineerValidationSchema;
 
-// .default(undefined)
-//                 .test(
-//                     "workExperience-required-fields",
-//                     "All fields inside workExperience must be filled when workExperience is provided", // Error message
-//                     function (value) {
-//                         if (value === undefined) return true;
-//                         if (!Object.keys(value).length) return false;
-
-//                         const { name, description, startDate, finishDate } =
-//                             value;
-//                         return !!(
-//                             name &&
-//                             description &&
-//                             startDate &&
-//                             finishDate
-//                         );
-//                     }
-//                 )

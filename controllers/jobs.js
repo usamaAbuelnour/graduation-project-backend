@@ -14,7 +14,7 @@ const getMyJobs = async (req, res) => {
         "job",
         10,
         requestedPage,
-        { userId }
+        { userId, acceptedProposal: null }
     );
 
     const populatedDocs = await JobModel.populate(docs, [

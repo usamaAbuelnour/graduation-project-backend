@@ -31,16 +31,21 @@ const userSchema = new Schema(
             type: SchemaTypes.ObjectId,
             ref: "engineer",
         },
-        verificationStatus: {
-            type: SchemaTypes.String,
-            default: null,
+        verificationState: {
+            status: {
+                type: SchemaTypes.String,
+                default: null,
+            },
+            remarks: {
+                type: SchemaTypes.String,
+                default: null,
+            },
         },
     },
     {
         timestamps: true,
     }
 );
-
 userSchema.virtual("formattedCreatedAt").get(function () {
     return new Date(this.createdAt).toLocaleString("en-GB", {
         timeZone: "UTC",

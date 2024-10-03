@@ -83,20 +83,20 @@ const setVerificationInfo = async (req, res) => {
     }
     const existingUser = await UserModel.findById(userId);
     if (
-        !existingUser.verificationStatus ||
-        existingUser.verificationStatus === "rejected"
+        !existingUser.verificationState.status ||
+        existingUser.verificationState.status === "rejected"
     ) {
-        existingUser.set({ verificationStatus: "pending" });
+        existingUser.set({ "verificationState.status": "pending" });
         await existingUser.save();
         return res.send(
             "Info sent successfully, please wait for verification confirmation ^_^"
         );
     }
-    if (existingUser.verificationStatus === "pending")
+    if (existingUser.verificationState.status === "pending")
         return res.send("Please wait for verification confirmation ^_^");
 
-    if (existingUser.verificationStatus === "accepted")
-        return res.send("You're already verified!!");
+    if (existingUser.verificationState.status === "accepted")
+        return res.status(409).send("You're already verified!!");
 };
 
 const setImage = async (req, res) => {
