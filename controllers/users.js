@@ -66,6 +66,7 @@ const login = async (req, res) => {
       const engineer = await EngineerModel.findById(user?.engineerId);
       personalImage = engineer?.personalImage;
     }
+    
     res.send({
       id: user._id,
       name: `${user.firstName} ${user.lastName}`,
