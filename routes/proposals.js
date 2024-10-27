@@ -10,6 +10,6 @@ const {
 router.get("/", getProposals);
 router.post("/", setProposal);
 router.patch("/:id", acceptOrRejectProposal);
-router.patch("/:id", confirmProposal);
+router.patch("/confirm/:id", confirmProposal);
 
 module.exports = router;

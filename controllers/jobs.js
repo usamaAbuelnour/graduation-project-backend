@@ -33,6 +33,18 @@ const getMyJobs = async (req, res) => {
         select: "-_id firstName lastName email",
       },
     },
+    {
+      path: "acceptedProposal",
+      select: "-_id userId",
+      populate: {
+        path: "userId",
+        select: "-_id firstName lastName email",
+        populate: {
+          path: "engineerId",
+          select: "-_id phoneNumbers whatsAppPhoneNumbers",
+        },
+      },
+    },
   ]);
   if (docs.length)
     res.send({

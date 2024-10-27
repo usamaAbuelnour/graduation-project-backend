@@ -85,7 +85,7 @@ const acceptOrRejectProposal = async (req, res) => {
       "Stauts value should be either accepted or rejected!!"
     );
 
-  const existingProposal = await ProposalModel.findById(proposalId);
+  let existingProposal = await ProposalModel.findById(proposalId);
 
   if (!existingProposal) throw new CustomError(404, "No such proposal found");
 
@@ -95,28 +95,32 @@ const acceptOrRejectProposal = async (req, res) => {
   if (status === "accepted") {
     existingProposal.set({ status: "awaiting confirmation" });
     await existingProposal.save();
-    const {
-      userId: {
-        email,
-        engineerId: { phoneNumbers, whatsAppPhoneNumbers },
-      },
-    } = await ProposalModel.populate(existingProposal, {
-      path: "userId",
-      populate: {
-        path: "engineerId",
-      },
-    });
 
-    return res.send({
-      message: `proposal accepted and waiting for confirmation, please contact your enginner in 24 hours`,
-      contactInfo: { email, phoneNumbers, whatsAppPhoneNumbers },
-    });
+    const { jobId } = existingProposal;
+    const job = await JobModel.findById(jobId);
+    job.set({ acceptedProposal: existingProposal._id });
+    await job.save();
+
+    setTimeout(async () => {
+      existingProposal = await ProposalModel.findById(proposalId);
+      if (existingProposal.status === "awaiting confirmation") {
+        existingProposal.set({
+          status: "pending",
+        });
+        await existingProposal.save();
+        job.set({ acceptedProposal: null });
+        await job.save();
+      }
+    }, 300000);
+
+    return res.send(
+      "proposal accepted and waiting for confirmation, please contact your engineer in 24 hours"
+    );
   }
-  existingProposal.set({ status });
 
+  existingProposal.set({ status: "rejected" });
   await existingProposal.save();
-
-  res.send(`proposal rejected`);
+  res.send("proposal rejected");
 };
 
 const confirmProposal = async (req, res) => {
@@ -124,8 +128,6 @@ const confirmProposal = async (req, res) => {
 
   if (!isValidObjectId(proposalId))
     throw new CustomError(422, "Invalid proposal id!!");
-
-  const { id: userId } = req.user;
 
   const existingProposal = await ProposalModel.findById(proposalId);
 
@@ -140,7 +142,9 @@ const confirmProposal = async (req, res) => {
   const { jobId } = existingProposal;
   const job = await JobModel.findById(jobId);
 
-  job.set({ acceptedProposal: existingProposal._id });
+  existingProposal.set({ status: "accepted" });
+  await existingProposal.save();
+
   const { proposals } = job;
   proposals.forEach(async (proposal) => {
     await ProposalModel.findOneAndUpdate(
@@ -148,7 +152,8 @@ const confirmProposal = async (req, res) => {
       { status: "rejected" }
     );
   });
-  await job.save();
+
+  const { userId } = job._doc;
 
   const existingUser = await UserModel.findOne({
     _id: userId,
