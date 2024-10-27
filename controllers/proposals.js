@@ -111,7 +111,7 @@ const acceptOrRejectProposal = async (req, res) => {
         job.set({ acceptedProposal: null });
         await job.save();
       }
-    }, 300000);
+    }, 24 * 60 * 60 * 1000);
 
     return res.send(
       "proposal accepted and waiting for confirmation, please contact your engineer in 24 hours"
