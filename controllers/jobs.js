@@ -35,7 +35,7 @@ const getMyJobs = async (req, res) => {
     },
     {
       path: "acceptedProposal",
-      select: "-_id userId",
+      select: "-_id userId status",
       populate: {
         path: "userId",
         select: "-_id firstName lastName email",
